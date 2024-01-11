@@ -27,14 +27,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final double verticalPadding = 25;
 
   bool isLoading = true;
-  bool isLoadingTemp = true;
-  bool isLoadingHumi = true;
-  List<dynamic> humidityData = [
-    {'value': 0}
-  ];
-  List<dynamic> temperatureData = [
-    {'value': 0}
-  ];
+  bool isLoadingSensor = true;
 
   // list of smart devices
   List mySmartDevices = [
@@ -43,6 +36,8 @@ class _DashboardPageState extends State<DashboardPage> {
     ["Smart AC", "lib/icons/air-conditioner.png", false],
     ["Smart TV", "lib/icons/smart-tv.png", false],
   ];
+
+  Map<String, dynamic> receiveData = {};
 
   // power button switched
   void powerSwitchChanged(bool value, int index) {
@@ -62,34 +57,6 @@ class _DashboardPageState extends State<DashboardPage> {
         print(e);
       }
     });
-  }
-
-  void getHumidity() async {
-    setState(() {
-      isLoadingHumi = true;
-    });
-    try {
-      humidityData = await fetchData(APIConstant.humidity);
-      setState(() {
-        isLoadingHumi = false;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  void getTemperature() async {
-    setState(() {
-      isLoadingTemp = true;
-    });
-    try {
-      temperatureData = await fetchData(APIConstant.temperature);
-      setState(() {
-        isLoadingTemp = false;
-      });
-    } catch (e) {
-      print(e);
-    }
   }
 
   void getFans() async {
@@ -161,8 +128,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _pullRefresh() async {
-    getHumidity();
-    getTemperature();
     getFans();
     getLight();
     getDevice3();
@@ -172,19 +137,33 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    getHumidity();
-    getTemperature();
     getFans();
     getLight();
     getDevice3();
     getDevice4();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final _service = MQTTService(topic: "/innovation/airmonitoring/smarthome");
+  void initValue() {
+    final _service =
+        MQTTService(topic: "/innovation/airmonitoring/smarthome/sensors");
     _service.initializeMQTTClient();
     _service.connectMQTT();
+    _service.onDataReceived = onDataReceived;
+  }
+
+  // Callback function to handle received data
+  void onDataReceived(Map<String, dynamic> data) {
+    print("Received data in DashboardPage: $data");
+    setState(() {
+      receiveData = data;
+      isLoadingSensor = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    initValue();
+
     return Scaffold(
       // backgroundColor: Colors.grey[300],
       backgroundColor: Colors.white,
@@ -200,7 +179,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: [
                   const SizedBox(height: 20),
 
-                  // welcome home
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -240,7 +218,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       children: [
-                        isLoadingTemp
+                        isLoadingSensor
                             ? Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -276,14 +254,17 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               )
                             : MyCard(
-                                title: "Temperature",
+                                title: receiveData['data_sensor'] != null
+                                    ? receiveData['data_sensor'][0]
+                                        ['sensor_key']
+                                    : "",
                                 icon: const Icon(
                                   FontAwesomeIcons.temperatureHalf,
                                   color: Colors.blueAccent,
                                 ),
-                                text: Text(
-                                  temperatureData.length > 0
-                                      ? "${temperatureData[0]['value'].toString()} °C"
+                                value: Text(
+                                  receiveData['data_sensor'] != null
+                                      ? "${receiveData['data_sensor'][0]['sensor_value'].toString()} °C"
                                       : "0 °C",
                                   style: const TextStyle(
                                     fontSize: 30,
@@ -293,7 +274,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               ),
                         const SizedBox(height: 25),
-                        isLoadingHumi
+                        isLoadingSensor
                             ? Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -303,15 +284,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey
-                                          .withOpacity(0.2), //color of shadow
-                                      spreadRadius: 4, //spread radius
-                                      blurRadius: 4, // blur radius
-                                      offset: const Offset(
-                                          0, 2), // changes position of shadow
-                                      //first paramerter of offset is left-right
-                                      //second parameter is top to down
+                                          .withOpacity(0.2), 
+                                      spreadRadius: 4,
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
                                     ),
-                                    //you can set more BoxShadow() here
                                   ],
                                 ),
                                 height: 150,
@@ -329,15 +306,18 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               )
                             : MyCard(
-                                title: "Humidity",
+                                title: receiveData['data_sensor'] != null
+                                    ? receiveData['data_sensor'][1]
+                                        ['sensor_key']
+                                    : "",
                                 icon: const Icon(
                                   FontAwesomeIcons.water,
                                   color: Colors.blueAccent,
                                 ),
-                                text: Text(
-                                  humidityData.isEmpty
+                                value: Text(
+                                  receiveData['data_sensor'] == null
                                       ? "0 %"
-                                      : "${humidityData[0]['value']} %",
+                                      : "${receiveData['data_sensor'][1]['sensor_value']} %",
                                   style: const TextStyle(
                                     fontSize: 30,
                                     fontWeight: FontWeight.bold,
@@ -354,7 +334,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: Color.fromARGB(255, 204, 204, 204),
                   ),
 
-                  // smart devices grid
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -419,11 +398,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
 class MyCard extends StatefulWidget {
   const MyCard(
-      {super.key, required this.title, required this.icon, required this.text});
+      {super.key,
+      required this.title,
+      required this.icon,
+      required this.value});
 
   final String title;
   final Icon icon;
-  final Text text;
+  final Text value;
 
   @override
   State<MyCard> createState() => _MyCardState();
@@ -444,11 +426,8 @@ class _MyCardState extends State<MyCard> {
             color: Colors.grey.withOpacity(0.2), //color of shadow
             spreadRadius: 4, //spread radius
             blurRadius: 4, // blur radius
-            offset: const Offset(0, 2), // changes position of shadow
-            //first paramerter of offset is left-right
-            //second parameter is top to down
+            offset: const Offset(0, 2),
           ),
-          //you can set more BoxShadow() here
         ],
       ),
       child: Padding(
@@ -469,9 +448,9 @@ class _MyCardState extends State<MyCard> {
                         color: Color.fromARGB(44, 164, 167, 189),
                       ),
                       child: const Padding(
-                        padding: EdgeInsets.all(2.0),
+                        padding: EdgeInsets.all(5.0),
                         child: Icon(
-                          Icons.abc,
+                          FontAwesomeIcons.airbnb,
                           size: 30,
                         ),
                       ),
@@ -504,7 +483,7 @@ class _MyCardState extends State<MyCard> {
                     const SizedBox(
                       width: 20,
                     ),
-                    widget.text,
+                    widget.value,
                   ],
                 ),
                 TextButton(

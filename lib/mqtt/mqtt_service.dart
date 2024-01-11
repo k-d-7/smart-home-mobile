@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:smarthomeui/model/mqtt_model.dart';
+
+typedef OnDataReceivedCallback = void Function(Map<String, dynamic> data);
 
 class MQTTService {
   MQTTService({
@@ -22,6 +26,8 @@ class MQTTService {
   late MqttServerClient _client;
 
   bool isMe;
+
+  OnDataReceivedCallback? onDataReceived;
 
   void initializeMQTTClient() {
     _client = MqttServerClient("mqttserver.tk", 'flutter_mobile')
@@ -59,24 +65,32 @@ class MQTTService {
     }
   }
 
-  void onConnected() {
+  Map<String, dynamic> onConnected() {
     log('Connected');
+    Map<String, dynamic> data = {};
 
     try {
       _client.subscribe(topic!, MqttQos.atLeastOnce);
-      _client.updates!.listen((dynamic t) {
-        final MqttPublishMessage recMess = t[0].payload;
-        final message =
-            MqttPublishPayload.bytesToStringAsString(recMess.payload.message!);
+      _client.updates!.listen(
+        (dynamic t) {
+          final MqttPublishMessage recMess = t[0].payload;
+          final message =
+              MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-        print('message id : ${recMess.variableHeader?.messageIdentifier}');
-        print('message : $message');
-        // int id = model!.message.length + 1;
-        // model!
-        //     .addMessage(Messages(id: isMe ? 0 : id, msg: message, time: 'now'));
-      });
+          // log('message id : ${recMess.variableHeader?.messageIdentifier}');
+          // log('message : $message');
+          data = json.decode(message);
+          // print(data['data_sensor']);
+
+          if (onDataReceived != null) {
+            onDataReceived!(data);
+          }
+        },
+      );
+      return data;
     } catch (e) {
       log(e.toString());
+      return data;
     }
   }
 
