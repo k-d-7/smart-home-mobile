@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:smarthomeui/mqtt/mqtt_service.dart';
 import 'package:smarthomeui/services/api_service.dart';
 import 'package:smarthomeui/util/constant.dart';
 import 'package:smarthomeui/util/smart_device_box.dart';
@@ -181,6 +182,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final _service = MQTTService(topic: "/innovation/airmonitoring/smarthome");
+    _service.initializeMQTTClient();
+    _service.connectMQTT();
     return Scaffold(
       // backgroundColor: Colors.grey[300],
       backgroundColor: Colors.white,

@@ -1,6 +1,6 @@
-import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MyAssistancePage extends StatefulWidget {
   const MyAssistancePage({super.key});
@@ -10,123 +10,78 @@ class MyAssistancePage extends StatefulWidget {
 }
 
 class _MyAssistancePageState extends State<MyAssistancePage> {
-  FlutterSoundRecorder _recordingSession = FlutterSoundRecorder();
-  final recordingPlayer = AssetsAudioPlayer();
-
-  bool recording = true;
-  String pathToAudio = "";
+  stt.SpeechToText speech = stt.SpeechToText();
+  bool _isListening = false;
+  String _text = 'Press the button and start speaking';
+  double _confidence = 1.0;
+  bool isAvailable = false;
 
   @override
   void initState() {
     super.initState();
+    // speech = stt.SpeechToText();
+    init();
+  }
+
+  void init() async {
+    isAvailable = await speech.initialize();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(15.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Hello, I am an AI assistance.",
-                    style: TextStyle(
-                      fontSize: 25,
-                    ),
-                  ),
-                  Text(
-                    "How can I help you?",
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Divider(
-                    thickness: 1,
-                    color: Color.fromARGB(255, 204, 204, 204),
-                  ),
-                ],
-              ),
-            ),
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    recording = !recording;
-                  });
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AudioRecordWidget(recording: recording),
-                    SizedBox(height: 10),
-                    Text(
-                      '00:06',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%'),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: AvatarGlow(
+        animate: _isListening,
+        glowColor: Theme.of(context).primaryColor,
+        // endRadius: 75.0,
+        duration: const Duration(milliseconds: 2000),
+        // repeatPauseDuration: const Duration(milliseconds: 100),
+        repeat: true,
+        child: FloatingActionButton(
+          onPressed: _listen,
+          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
         ),
       ),
-    );
-  }
-}
-
-class AudioRecordWidget extends StatelessWidget {
-  const AudioRecordWidget({
-    super.key,
-    required this.recording,
-  });
-
-  final bool recording;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 80,
-      height: 80,
-      padding: EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0x999999).withOpacity(.3),
-          width: 3,
-        ),
-        shape: BoxShape.circle,
-      ),
-      child: Container(
-        width: 70,
-        height: 70,
-        decoration: const BoxDecoration(
-          color: Colors.blueAccent,
-          shape: BoxShape.circle,
-        ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (child, animation) {
-            return ScaleTransition(
-              scale: animation,
-              child: FadeTransition(
-                opacity: animation,
-                child: child,
-              ),
-            );
-          },
-          child: Icon(
-            recording ? Icons.pause_circle_filled : Icons.play_circle_filled,
-            color: Colors.white,
-            key: ValueKey<bool>(recording),
-            size: 40,
+      body: SingleChildScrollView(
+        reverse: true,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
+          child: Text(
+            "$_text",
+            style: const TextStyle(
+              fontSize: 32.0,
+              color: Colors.black,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _listen() async {
+    if (!_isListening) {
+      if (isAvailable) {
+        print("aaa");
+        setState(() => _isListening = true);
+        speech.listen(
+          onResult: (val) => setState(() {
+            print(val.recognizedWords);
+            _text = val.recognizedWords;
+            if (val.hasConfidenceRating && val.confidence > 0) {
+              _confidence = val.confidence;
+            }
+          }),
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      speech.stop();
+    }
   }
 }
