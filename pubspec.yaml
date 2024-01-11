@@ -45,6 +45,7 @@ dependencies:
   flutter_animated_icons: ^1.0.1
   lottie: ^1.4.3
   avatar_glow: ^3.0.1
+  flutter_tts: ^3.8.5
 
 dev_dependencies:
   flutter_test:

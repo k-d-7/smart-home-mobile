@@ -41,3 +41,23 @@ void postData(String url, bool value) async {
     print(e);
   }
 }
+
+Future<String> postTextData(String url, String value) async {
+  try {
+    final param = jsonEncode({"textVoice": value});
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: param,
+    );
+    Map<String, dynamic> data = json.decode(response.body);
+    print("Value in function: " + value);
+    print(data);
+    return data['Message'];
+  } catch (e) {
+    print(e);
+    return "Error";
+  }
+}

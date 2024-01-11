@@ -1,5 +1,8 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:smarthomeui/services/api_service.dart';
+import 'package:smarthomeui/util/constant.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MyAssistancePage extends StatefulWidget {
@@ -15,12 +18,28 @@ class _MyAssistancePageState extends State<MyAssistancePage> {
   String _text = 'Press the button and start speaking';
   double _confidence = 1.0;
   bool isAvailable = false;
+  final FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
     super.initState();
-    // speech = stt.SpeechToText();
     init();
+  }
+
+  speak(String text) async {
+    await flutterTts.setLanguage("en-US");
+    await flutterTts.setPitch(1);
+    await flutterTts.speak(text);
+    await flutterTts.setVolume(1.0);
+    await flutterTts.setIosAudioCategory(
+      IosTextToSpeechAudioCategory.playback,
+      [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker],
+    );
+  }
+
+  void postText(String text) async {
+    String text = await postTextData(APIConstant.backend, _text);
+    speak(text);
   }
 
   void init() async {
@@ -80,7 +99,10 @@ class _MyAssistancePageState extends State<MyAssistancePage> {
         );
       }
     } else {
-      setState(() => _isListening = false);
+      setState(() {
+        postText(_text);
+        _isListening = false;
+      });
       speech.stop();
     }
   }
