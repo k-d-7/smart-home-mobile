@@ -2,6 +2,7 @@ import 'package:flashy_tab_bar2/flashy_tab_bar2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smarthomeui/pages/assistance.dart';
+import 'package:smarthomeui/pages/camera.dart';
 import 'package:smarthomeui/pages/dashboard.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -17,7 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> tabItems = const [
     DashboardPage(),
     MyAssistancePage(),
-    Center(child: Text("4"))
+    LiveStreamScreen(),
   ];
 
   @override
@@ -44,8 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
             title: const Text('Assistance'),
           ),
           FlashyTabBarItem(
-            icon: const Icon(Icons.highlight),
-            title: const Text('Highlights'),
+            icon: const Icon(Icons.camera),
+            title: const Text('Camera'),
           ),
         ],
       ),
