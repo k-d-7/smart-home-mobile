@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:smarthomeui/model/mqtt_model.dart';
 
 typedef OnDataReceivedCallback = void Function(Map<String, dynamic> data);
 
@@ -10,7 +9,7 @@ class MQTTService {
   MQTTService({
     this.host,
     this.port,
-    this.topic,
+    this.topics,
     // this.model,
     this.isMe = false,
   });
@@ -21,7 +20,7 @@ class MQTTService {
 
   final int? port;
 
-  final String? topic;
+  final List<String>? topics;
 
   late MqttServerClient _client;
 
@@ -70,23 +69,26 @@ class MQTTService {
     Map<String, dynamic> data = {};
 
     try {
-      _client.subscribe(topic!, MqttQos.atLeastOnce);
-      _client.updates!.listen(
-        (dynamic t) {
-          final MqttPublishMessage recMess = t[0].payload;
-          final message =
-              MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+      for (var topic in topics!) {
+        _client.subscribe(topic, MqttQos.atLeastOnce);
+        _client.updates!.listen(
+          (dynamic t) {
+            final MqttPublishMessage recMess = t[0].payload;
+            final message = MqttPublishPayload.bytesToStringAsString(
+                recMess.payload.message);
 
-          // log('message id : ${recMess.variableHeader?.messageIdentifier}');
-          // log('message : $message');
-          data = json.decode(message);
-          // print(data['data_sensor']);
+            // log('message id : ${recMess.variableHeader?.messageIdentifier}');
+            // log('message : $message');
+            data = json.decode(message);
+            // print(data['data_sensor']);
 
-          if (onDataReceived != null) {
-            onDataReceived!(data);
-          }
-        },
-      );
+            if (onDataReceived != null) {
+              onDataReceived!(data);
+            }
+          },
+        );
+      }
+
       return data;
     } catch (e) {
       log(e.toString());
@@ -98,12 +100,11 @@ class MQTTService {
     log('Disconnected');
   }
 
-  void puslish(String message) {
+  void publish(String message, String topic) {
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
+    _client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
 
-    _client.publishMessage(
-        'sensor/home', MqttQos.atLeastOnce, builder.payload!);
     builder.clear();
   }
 

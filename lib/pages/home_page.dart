@@ -18,7 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> tabItems = const [
     DashboardPage(),
     MyAssistancePage(),
-    LiveStreamScreen(),
+    // LiveStreamScreen(),
   ];
 
   @override
