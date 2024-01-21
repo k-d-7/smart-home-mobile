@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SmartDeviceBox extends StatelessWidget {
   final String smartDeviceName;
@@ -20,7 +21,7 @@ class SmartDeviceBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(15.0).r,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -28,14 +29,14 @@ class SmartDeviceBox extends StatelessWidget {
               powerOn ? Colors.blueAccent : Color.fromARGB(44, 164, 167, 189),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 25.0),
+          padding: const EdgeInsets.symmetric(vertical: 25.0).r,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // icon
               Image.asset(
                 iconPath,
-                height: 65,
+                height: 50.h * 1.1,
                 color: powerOn ? Colors.white : Colors.grey.shade700,
               ),
 
@@ -44,25 +45,30 @@ class SmartDeviceBox extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 25.0),
+                      padding: const EdgeInsets.only(left: 25.0).r,
                       child: Text(
                         smartDeviceName,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 20.sp,
                           color: powerOn ? Colors.white : Colors.black,
                         ),
                       ),
                     ),
                   ),
-                  Transform.rotate(
-                    angle: pi / 2,
-                    child: CupertinoSwitch(
-                      value: powerOn,
-                      onChanged: onChanged,
-                      activeColor: Colors.blueGrey,
-                    ),
-                  ),
+                  Transform.translate(
+                      offset: Offset(-15.w, -10.h),
+                      child: Transform.rotate(
+                        angle: pi / 2,
+                        child: Transform.scale(
+                          scale: 1.4.r,
+                          child: CupertinoSwitch(
+                            value: powerOn,
+                            onChanged: onChanged,
+                            activeColor: Colors.blueGrey,
+                          ),
+                        ),
+                      )),
                 ],
               )
             ],

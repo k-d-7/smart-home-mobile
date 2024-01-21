@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:smarthomeui/pages/assistance.dart';
 import 'package:smarthomeui/pages/camera.dart';
 import 'package:smarthomeui/pages/dashboard.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -18,7 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> tabItems = const [
     DashboardPage(),
     MyAssistancePage(),
-    // LiveStreamScreen(),
+    LiveStreamScreen(),
   ];
 
   @override

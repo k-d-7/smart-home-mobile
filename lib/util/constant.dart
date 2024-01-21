@@ -15,5 +15,5 @@ class APIConstant {
   static const temperature =
       "https://io.adafruit.com/api/v2/theloc3101/feeds/temperature/data";
 
-  static const backend = "http://192.168.0.110:5000/api/v1/speech";
+  static const backend = "http://192.168.230.120:5000/api/v1/speech";
 }

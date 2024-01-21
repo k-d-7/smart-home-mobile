@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:smarthomeui/mqtt/mqtt_service.dart';
@@ -34,8 +35,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // list of smart devices
   List mySmartDevices = [
-    ["Smart Light", "lib/icons/light-bulb.png", false],
-    ["Smart Fan", "lib/icons/fan.png", false],
+    ["Light", "lib/icons/light-bulb.png", false],
+    ["Fan", "lib/icons/fan.png", false],
     ["Device 3", "lib/icons/air-conditioner.png", false],
     ["Device 4", "lib/icons/smart-tv.png", false],
   ];
@@ -175,7 +176,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     Text(
                       "Welcome Home!",
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 26.sp,
                         color: Colors.grey.shade800,
                         fontWeight: FontWeight.bold,
                       ),
@@ -194,10 +195,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 // general information
                 Text(
-                  "General Information",
+                  "Smart Sensors",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 24,
+                    fontSize: 20.sp,
                     color: Colors.grey.shade800,
                   ),
                 ),
@@ -228,7 +229,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 ],
                               ),
-                              height: 150,
+                              height: 100.r,
                               child: const Center(
                                 child: SizedBox(
                                   height: 30,
@@ -247,7 +248,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ? receiveSensorData['data_sensor'][0]
                                       ['sensor_key']
                                   : "",
-                              icon: const Icon(
+                              icon: Icon(
+                                size: 28.r,
                                 FontAwesomeIcons.temperatureHalf,
                                 color: Colors.blueAccent,
                               ),
@@ -255,8 +257,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 receiveSensorData['data_sensor'] != null
                                     ? "${receiveSensorData['data_sensor'][0]['sensor_value'].toString()} °C"
                                     : "0 °C",
-                                style: const TextStyle(
-                                  fontSize: 30,
+                                style: TextStyle(
+                                  fontSize: 30.sp,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blueAccent,
                                 ),
@@ -279,7 +281,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 ],
                               ),
-                              height: 150,
+                              height: 100.h,
                               child: const Center(
                                 child: SizedBox(
                                   height: 30,
@@ -298,7 +300,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ? receiveSensorData['data_sensor'][1]
                                       ['sensor_key']
                                   : "",
-                              icon: const Icon(
+                              icon: Icon(
+                                size: 28.r,
                                 FontAwesomeIcons.water,
                                 color: Colors.blueAccent,
                               ),
@@ -306,8 +309,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 receiveSensorData['data_sensor'] == null
                                     ? "0 %"
                                     : "${receiveSensorData['data_sensor'][1]['sensor_value']} %",
-                                style: const TextStyle(
-                                  fontSize: 30,
+                                style: TextStyle(
+                                  fontSize: 30.sp,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blueAccent,
                                 ),
@@ -330,7 +333,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 ],
                               ),
-                              height: 150,
+                              height: 100.h,
                               child: const Center(
                                 child: SizedBox(
                                   height: 30,
@@ -349,7 +352,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ? receiveCo2Data['data_sensor'][0]
                                       ['sensor_key']
                                   : "",
-                              icon: const Icon(
+                              icon: Icon(
+                                size: 28.r,
                                 FontAwesomeIcons.water,
                                 color: Colors.blueAccent,
                               ),
@@ -357,8 +361,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 receiveCo2Data['data_sensor'] == null
                                     ? "0"
                                     : "${receiveCo2Data['data_sensor'][0]['sensor_value']}",
-                                style: const TextStyle(
-                                  fontSize: 30,
+                                style: TextStyle(
+                                  fontSize: 30.sp,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blueAccent,
                                 ),
@@ -381,7 +385,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       "Smart Devices",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 24,
+                        fontSize: 20.sp,
                         color: Colors.grey.shade800,
                       ),
                     ),
@@ -413,7 +417,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 1 / 1.3,
+                          childAspectRatio: 1 / 1.2,
                         ),
                         itemBuilder: (context, index) {
                           return SmartDeviceBox(
@@ -453,7 +457,7 @@ class _MyCardState extends State<MyCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
+      height: 100.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.all(
@@ -469,7 +473,7 @@ class _MyCardState extends State<MyCard> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(10.0).r,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -485,11 +489,11 @@ class _MyCardState extends State<MyCard> {
                         shape: BoxShape.circle,
                         color: Color.fromARGB(44, 164, 167, 189),
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
+                      child: Padding(
+                        padding: EdgeInsets.all(5.0).r,
                         child: Icon(
                           FontAwesomeIcons.airbnb,
-                          size: 30,
+                          size: 20.r,
                         ),
                       ),
                     ),
@@ -498,17 +502,18 @@ class _MyCardState extends State<MyCard> {
                     ),
                     Text(
                       widget.title.toString(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 25,
+                        fontSize: 25.sp,
                       ),
                     ),
                   ],
                 ),
-                const Icon(
+                Icon(
                   Icons.cloud,
                   color: Colors.blueAccent,
+                  size: 28.r,
                 ),
               ],
             ),
@@ -526,11 +531,11 @@ class _MyCardState extends State<MyCard> {
                 ),
                 TextButton(
                   onPressed: () {},
-                  child: const Text(
+                  child: Text(
                     "Detail",
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 15,
+                      fontSize: 15.sp,
                     ),
                   ),
                 ),
